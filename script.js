@@ -1,3 +1,7 @@
+/**
+ * Written by davidhcefx, 2021.12.15.
+ **/
+
 // comment out for node-js testing
 //import fetch from 'node-fetch';
 

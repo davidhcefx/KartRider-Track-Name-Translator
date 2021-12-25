@@ -1,5 +1,6 @@
 const http = require('http');
 const fs = require('fs');
+const PORT = process.env.PORT || 80;
 
 function createServer(idx, script, fav) {
   http.createServer((req, res) => {
@@ -20,9 +21,9 @@ function createServer(idx, script, fav) {
       res.end(idx);
     }
     console.log(req.url);
-  }).listen(80);
+  }).listen(PORT);
 
-  console.log('Server listening at port 80...');
+  console.log(`Server listening at port ${PORT}...`);
 }
 
 // read files

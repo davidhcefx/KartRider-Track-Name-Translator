@@ -38,20 +38,31 @@ function has_subsequence(str, sub) {
 }
 
 /**
- * Find a subsequence in keys that is equal to name and return its value.
+ * Find a key in d that contains name and return its value.
+ * If not found, find a key that has subsequence of name.
  * @name String
  * @d dict: String -> String
  * @return String
  **/
 function find_match(name, d) {
-  const match = Object.keys(d)
-    .filter(k => has_subsequence(k, name));
-  if (match.length === 0) {
-    return 'NOT FOUND!';
-  } else if (match.length > 1) {
-    return `MULTI MATCH (${match})`;
+  const keys = Object.keys(d);
+  const describe = (match) => {
+    if (match.length > 1) {
+      return `MULTI MATCH (${match})`;
+    } else if (match.length === 1) {
+      // we don't want to output a question mark
+      return (d[match[0]] === '?') ? `(${match[0]})` : d[match[0]];
+    } else {
+      return 'NOT FOUND!';
+    }
+  };
+  // substring match
+  const s = describe(keys.filter(k => k.includes(name)));
+  if (s !== 'NOT FOUND!') {
+    return s;
   } else {
-    return d[match[0]];
+    // fuzzy match
+    return describe(keys.filter(k => has_subsequence(k, name)));
   }
 }
 

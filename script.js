@@ -80,7 +80,7 @@ async function run() {
       res.push(
         `- ${num}-${sub_num++}: `
         + `${find_match(name, d)} `
-        + (${mode[0].toUpperCase() + mode.substring(1)})`
+        + `(${mode[0].toUpperCase() + mode.substring(1)})`
       );
     } else {
       res.push('');

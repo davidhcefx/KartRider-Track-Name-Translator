@@ -76,13 +76,11 @@ async function run() {
   for (var i = 1; i < lines.length; i++) {
     const ln = lines[i].trim();
     if (ln.length > 0) {
-      var [name, mode] = ln.split(' ');
-      if (mode.length === 1) {
-        mode = mode.toUpperCase();
-      }
+      const [name, mode] = ln.split(' ');
       res.push(
         `- ${num}-${sub_num++}: `
-        + `${find_match(name, d)} (${mode})`
+        + `${find_match(name, d)} `
+        + (${mode[0].toUpperCase() + mode.substring(1)})`
       );
     } else {
       res.push('');

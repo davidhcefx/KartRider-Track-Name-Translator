@@ -7,7 +7,7 @@
 
 /**
  * Fetch tracklist and build Chinese to English name mappings.
- * @return: dict: String -> String
+ * @returns {Object}: Dictionay mapping String -> String.
  **/
 async function fetch_dictionary() {
   var d = {};
@@ -15,17 +15,13 @@ async function fetch_dictionary() {
   const r = await fetch(url);
   (await r.text()).split('\n')
     .map(ln => ln.split('|'))
-    .filter(row => row.length >= 4 && !row[1].includes('--')) 
+    .filter(row => row.length >= 4 && !row[1].includes('--'))
     .forEach(row => {
       d[row[1].trim()] = row[2].trim();
     });
-
   return d;
 }
 
-/**
- * @return Boolean
- **/
 function has_subsequence(str, sub) {
   var i = -1;
   for (var ch of sub) {
@@ -40,9 +36,9 @@ function has_subsequence(str, sub) {
 /**
  * Find a key in d that contains name and return its value.
  * If not found, find a key that has subsequence of name.
- * @name String
- * @d dict: String -> String
- * @return String
+ * @param {String} name
+ * @param {Object} d: Dictionay mapping String -> String.
+ * @returns {String}
  **/
 function find_match(name, d) {
   const keys = Object.keys(d);
@@ -50,7 +46,7 @@ function find_match(name, d) {
     if (match.length > 1) {
       return `MULTI MATCH (${match})`;
     } else if (match.length === 1) {
-      // we don't want to output a question mark
+      // replace question mark with the Chinese name
       return (d[match[0]] === '?') ? `(${match[0]})` : d[match[0]];
     } else {
       return 'NOT FOUND!';
@@ -67,26 +63,33 @@ function find_match(name, d) {
 }
 
 async function run() {
-  const d = await fetch_dictionary();
-  const lines = document.getElementById('input').value.split('\n');
-  var res = [];  // type: [String]
-  var num = parseInt(lines[0]);
-  var sub_num = 1;
+  try {
+    const d = await fetch_dictionary();  // TODO: should not fetch per click
+    const lines = document.getElementById('input').value.split('\n');
+    var res = [];  // type: String[]
+    var num = parseInt(lines[0]);
+    var sub_num = 1;
+    if (isNaN(num)) throw TypeError('The first line should be a number.');
 
-  for (var i = 1; i < lines.length; i++) {
-    const ln = lines[i].trim();
-    if (ln.length > 0) {
-      const [name, mode] = ln.split(' ');
-      res.push(
-        `- ${num}-${sub_num++}: `
-        + `${find_match(name, d)} `
-        + `(${mode[0].toUpperCase() + mode.substring(1)})`
-      );
-    } else {
-      res.push('');
-      num++;
-      sub_num = 1;
+    for (var i = 1; i < lines.length; i++) {
+      const ln = lines[i].trim();
+      if (ln.length > 0) {
+        const [name, mode] = ln.split(/\s+/);
+        if (mode == undefined) throw TypeError(`Input line ${i + 1} doesn't have a "mode".`);
+        res.push(
+          `- ${num}-${sub_num++}: `
+          + `${find_match(name, d)} `
+          + `(${mode[0].toUpperCase() + mode.substring(1)})`
+        );
+      } else {  // next paragraph
+        res.push('');
+        num++;
+        sub_num = 1;
+      }
     }
+    document.getElementById('output').value = res.join('\n');
+  } catch (e) {
+    alert(e);
+    console.error(e);
   }
-  document.getElementById('output').value = res.join('\n');
 }

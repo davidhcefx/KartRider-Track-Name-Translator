@@ -10,6 +10,9 @@
     body {
       margin: 2%;
     }
+    textarea {
+      max-width: 100%;
+    }
   </style>
 </head>
 <body>
@@ -18,7 +21,7 @@
   <hr>
 
   <p><b>Sample Input:</b></p>
-  <textarea disabled rows=15 cols=30>
+  <textarea disabled rows=15 cols=60>
 36
 城高 Em
 高速 C
@@ -35,12 +38,12 @@
 第五 T
   </textarea>
   <p><b>Your Input:</b></p>
-  <textarea id='input' rows=14 cols=30 placeholder='StartNum \n ((TrackName Mode \n){6} \n)*'></textarea>
+  <textarea id='input' rows=14 cols=60 placeholder='StartNum \n ((TrackName Mode \n){6} \n)*'></textarea>
   <input type='submit' onclick='run()' />
   <hr>
 
   <p><b>Output:</b></p>
-  <textarea id='output' disabled rows=14 cols=30>
+  <textarea id='output' disabled rows=14 cols=60>
 - 36-1: Up 'n' Down (Village) (Em)
 - 36-2: Up 'n' Down (Village) (C)
 - 36-3: Dragon Canal (China) (F)

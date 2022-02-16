@@ -10,16 +10,21 @@
  * @returns {Object}: Dictionay mapping String -> String.
  **/
 async function fetch_dictionary() {
-  var d = {};
-  const url = 'https://raw.githubusercontent.com/davidhcefx/KartRider-Rush-Story-Mode-Details/main/Tracklist_zh.md';
-  const r = await fetch(url);
-  (await r.text()).split('\n')
-    .map(ln => ln.split('|'))
-    .filter(row => row.length >= 4 && !row[1].includes('--'))
-    .forEach(row => {
-      d[row[1].trim()] = row[2].trim();
-    });
-  return d;
+  if (typeof KART_DICTIONARY === 'object') {  // already fetched
+    return KART_DICTIONARY;
+  } else {
+    KART_DICTIONARY = {};
+    const url = 'https://raw.githubusercontent.com/davidhcefx/KartRider-Rush-Story-Mode-Details/main/Tracklist_zh.md';
+    const r = await fetch(url);
+    (await r.text()).split('\n')
+      .map(ln => ln.split('|'))
+      .filter(row => row.length >= 4 && !row[1].includes('--'))
+      .forEach(row => {
+        KART_DICTIONARY[row[1].trim()] = row[2].trim();
+      });
+
+    return KART_DICTIONARY;
+  }
 }
 
 function has_subsequence(str, sub) {
@@ -64,7 +69,7 @@ function find_match(name, d) {
 
 async function run() {
   try {
-    const d = await fetch_dictionary();  // TODO: should not fetch per click
+    const d = await fetch_dictionary();
     const lines = document.getElementById('input').value.split('\n');
     var res = [];  // type: String[]
     var num = parseInt(lines[0]);

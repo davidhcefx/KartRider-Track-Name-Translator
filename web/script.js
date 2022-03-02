@@ -1,14 +1,13 @@
 /**
- * Written by davidhcefx, 2021.12.15.
- **/
+ * Code for KartRider Rush+ Story Mode Formatter. Written by davidhcefx, 2021.12.15.
+ */
 
-// comment out for node-js testing
-//import fetch from 'node-fetch';
+let KART_DICTIONARY;
 
 /**
  * Fetch tracklist and build Chinese to English name mappings.
  * @returns {Object}: Dictionay mapping String -> String.
- **/
+ */
 async function fetch_dictionary() {
   if (typeof KART_DICTIONARY === 'object') {  // already fetched
     return KART_DICTIONARY;
@@ -17,9 +16,9 @@ async function fetch_dictionary() {
     const url = 'https://raw.githubusercontent.com/davidhcefx/KartRider-Rush-Story-Mode-Details/main/Tracklist_zh.md';
     const r = await fetch(url);
     (await r.text()).split('\n')
-      .map(ln => ln.split('|'))
-      .filter(row => row.length >= 4 && !row[1].includes('--'))
-      .forEach(row => {
+      .map((ln) => ln.split('|'))
+      .filter((row) => row.length >= 4 && !row[1].includes('--'))
+      .forEach((row) => {
         KART_DICTIONARY[row[1].trim()] = row[2].trim();
       });
 
@@ -28,8 +27,8 @@ async function fetch_dictionary() {
 }
 
 function has_subsequence(str, sub) {
-  var i = -1;
-  for (var ch of sub) {
+  let i = -1;
+  for (const ch of sub) {
     i = str.indexOf(ch, i + 1);
     if (i === -1) {
       return false;
@@ -44,42 +43,35 @@ function has_subsequence(str, sub) {
  * @param {String} name
  * @param {Object} d: Dictionay mapping String -> String.
  * @returns {String}
- **/
+ */
 function find_match(name, d) {
   const keys = Object.keys(d);
   const describe = (match) => {
-    if (match.length > 1) {
-      return `MULTI MATCH (${match})`;
-    } else if (match.length === 1) {
-      // replace question mark with the Chinese name
-      return (d[match[0]] === '?') ? `(${match[0]})` : d[match[0]];
-    } else {
-      return 'NOT FOUND!';
-    }
+    if (match.length > 1) return `MULTI MATCH (${match})`;
+    // replace question mark with the Chinese name
+    if (match.length === 1) return (d[match[0]] === '?') ? `(${match[0]})` : d[match[0]];
+    return 'NOT FOUND!';
   };
   // substring match
-  const s = describe(keys.filter(k => k.includes(name)));
-  if (s !== 'NOT FOUND!') {
-    return s;
-  } else {
-    // fuzzy match
-    return describe(keys.filter(k => has_subsequence(k, name)));
-  }
+  const s = describe(keys.filter((k) => k.includes(name)));
+  if (s !== 'NOT FOUND!') return s;
+  // fuzzy match
+  return describe(keys.filter((k) => has_subsequence(k, name)));
 }
 
 async function do_translate() {
   const d = await fetch_dictionary();
   const lines = document.getElementById('input').value.split('\n');
-  var res = [];  // type: String[]
-  var num = parseInt(lines[0]);
-  var sub_num = 1;
-  if (isNaN(num)) throw TypeError('The first line should be a number.');
+  const res = [];  // type: String[]
+  let num = parseInt(lines[0], 10);
+  let sub_num = 1;
+  if (Number.isNaN(num)) throw TypeError('The first line should be a number.');
 
-  for (var i = 1; i < lines.length; i++) {
+  for (let i = 1; i < lines.length; i++) {
     const ln = lines[i].trim();
     if (ln.length > 0) {
       const [name, mode] = ln.split(/\s+/);
-      if (mode == undefined) throw TypeError(`Input line ${i + 1} doesn't have a "mode".`);
+      if (mode === undefined) throw TypeError(`Input line ${i + 1} doesn't have a "mode".`);
       res.push(
         `- ${num}-${sub_num++}: `
         + `${find_match(name, d)} `

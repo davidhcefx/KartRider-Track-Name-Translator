@@ -67,34 +67,48 @@ function find_match(name, d) {
   }
 }
 
+async function do_translate() {
+  const d = await fetch_dictionary();
+  const lines = document.getElementById('input').value.split('\n');
+  var res = [];  // type: String[]
+  var num = parseInt(lines[0]);
+  var sub_num = 1;
+  if (isNaN(num)) throw TypeError('The first line should be a number.');
+
+  for (var i = 1; i < lines.length; i++) {
+    const ln = lines[i].trim();
+    if (ln.length > 0) {
+      const [name, mode] = ln.split(/\s+/);
+      if (mode == undefined) throw TypeError(`Input line ${i + 1} doesn't have a "mode".`);
+      res.push(
+        `- ${num}-${sub_num++}: `
+        + `${find_match(name, d)} `
+        + `(${mode[0].toUpperCase() + mode.substring(1)})`
+      );
+    } else {  // next paragraph
+      res.push('');
+      num++;
+      sub_num = 1;
+    }
+  }
+  document.getElementById('output').value = res.join('\n');
+}
+
 async function run() {
   try {
-    const d = await fetch_dictionary();
-    const lines = document.getElementById('input').value.split('\n');
-    var res = [];  // type: String[]
-    var num = parseInt(lines[0]);
-    var sub_num = 1;
-    if (isNaN(num)) throw TypeError('The first line should be a number.');
-
-    for (var i = 1; i < lines.length; i++) {
-      const ln = lines[i].trim();
-      if (ln.length > 0) {
-        const [name, mode] = ln.split(/\s+/);
-        if (mode == undefined) throw TypeError(`Input line ${i + 1} doesn't have a "mode".`);
-        res.push(
-          `- ${num}-${sub_num++}: `
-          + `${find_match(name, d)} `
-          + `(${mode[0].toUpperCase() + mode.substring(1)})`
-        );
-      } else {  // next paragraph
-        res.push('');
-        num++;
-        sub_num = 1;
-      }
-    }
-    document.getElementById('output').value = res.join('\n');
+    await do_translate();
   } catch (e) {
-    alert(e);
+    alert(e);  // notify user errors
     console.error(e);
+  }
+}
+
+async function autorun() {
+  if (document.getElementById('autorun').checked) {
+    try {
+      await do_translate();
+    } catch (e) {
+      document.getElementById('output').value = e;
+    }
   }
 }

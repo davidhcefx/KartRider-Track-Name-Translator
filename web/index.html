@@ -1,27 +1,32 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>跑跑卡丁車Rush+ 地圖翻譯及格式化</title>
+  <title>跑跑卡丁車Rush+ | 地圖翻譯機</title>
   <link rel="icon" href="favicon.ico">
-  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
   <script type="text/javascript" src='/script.js'></script>
   <style type="text/css">
     body {
       margin: 2%;
     }
-    textarea {
+    .Article {
+      width: 500px;
       max-width: 100%;
+    }
+    textarea {
+      width: 100%;
     }
   </style>
 </head>
 <body>
-  <h2>跑跑卡丁車Rush+ 地圖翻譯及格式化</h2>
-  <p><i>Tool for formatting & translating Chinese <a href='https://github.com/davidhcefx/KartRider-Rush-Story-Mode-Details'>KartRider Rush+ story mode details</a>. Source code is available <a href='https://github.com/davidhcefx/KartRider-Rush-Story-Mode-Formatter'>here</a>!</i></p>
+  <h2>跑跑卡丁車 - 地圖翻譯機</h2>
+  <p><i>Tool for formatting & translating Chinese <a href='https://github.com/davidhcefx/KartRider-Rush-Story-Mode-Details'>KartRider Rush+ story mode details</a>. (<a href='https://github.com/davidhcefx/KartRider-Rush-Story-Mode-Formatter'>source</a>)</i></p>
   <hr>
 
-  <p><b>Sample Input:</b></p>
-  <textarea disabled rows=15 cols=60>
+  <div class='Article'>
+    <p><b>Sample Input:</b></p>
+    <textarea disabled rows=15>
 36
 城高 C
 高速 C
@@ -36,14 +41,20 @@
 龍遺 I
 黃黃 s
 第五 T
-  </textarea>
-  <p><b>Your Input:</b></p>
-  <textarea id='input' rows=14 cols=60 placeholder='StartNum \n ((TrackName Mode \n){6} \n)*'></textarea>
-  <input type='submit' onclick='run()' />
+    </textarea>
+
+    <p><b>Your Input:</b></p>
+    <textarea id='input' rows=14 onkeyup='autorun()' placeholder='StartNum \n ((TrackName Mode \n){6} \n)*'></textarea>
+    <label for='autorun' style='margin-left: 1em; padding-bottom: 14px'>
+      <input type='checkbox' id='autorun' /> 即時翻譯
+    </label>
+    <button class='btn btn-primary' style='float: right' onclick='run()'>翻譯</button>
+  </div>
   <hr>
 
-  <p><b>Output:</b></p>
-  <textarea id='output' disabled rows=14 cols=60>
+  <div class='Article'>
+    <p><b>Output:</b></p>
+    <textarea id='output' disabled rows=14>
 - 36-1: Up 'n' Down (Village) (C)
 - 36-2: Up 'n' Down (Village) (C)
 - 36-3: Dragon Canal (China) (F)
@@ -57,6 +68,7 @@
 - 37-4: Terracotta Twister (China) (I)
 - 37-5: Golden Coordinates (Gold) (S)
 - 37-6: Unfinished Zone 5 (Factory) (T)
-  </textarea>
+    </textarea>
+  </div>
 </body>
 </html>

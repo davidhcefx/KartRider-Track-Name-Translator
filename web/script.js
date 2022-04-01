@@ -6,9 +6,9 @@ let KART_DICTIONARY;
 
 /**
  * Fetch tracklist and build Chinese to English name mappings.
- * @returns {Object}: Dictionay mapping String -> String.
+ * @returns {Object.<String, String>}
  */
-async function fetch_dictionary() {
+async function fetchDictionary() {
   if (typeof KART_DICTIONARY === 'object') {  // already fetched
     return KART_DICTIONARY;
   } else {
@@ -17,7 +17,7 @@ async function fetch_dictionary() {
     const r = await fetch(url);
     (await r.text()).split('\n')
       .map((ln) => ln.split('|'))
-      .filter((row) => row.length >= 4 && !row[1].includes('--'))
+      .filter((row) => row.length >= 4 && !row[2].includes('--') && !row[2].includes('[R]'))
       .forEach((row) => {
         KART_DICTIONARY[row[1].trim()] = row[2].trim();
       });
@@ -26,7 +26,7 @@ async function fetch_dictionary() {
   }
 }
 
-function has_subsequence(str, sub) {
+function hasSubsequence(str, sub) {
   let i = -1;
   for (const ch of sub) {
     i = str.indexOf(ch, i + 1);
@@ -44,7 +44,7 @@ function has_subsequence(str, sub) {
  * @param {Object} d: Dictionay mapping String -> String.
  * @returns {String}
  */
-function find_match(name, d) {
+function findMatch(name, d) {
   const keys = Object.keys(d);
   const describe = (match) => {
     if (match.length > 1) return `MULTI MATCH (${match})`;
@@ -56,15 +56,15 @@ function find_match(name, d) {
   const s = describe(keys.filter((k) => k.includes(name)));
   if (s !== 'NOT FOUND!') return s;
   // fuzzy match
-  return describe(keys.filter((k) => has_subsequence(k, name)));
+  return describe(keys.filter((k) => hasSubsequence(k, name)));
 }
 
-async function do_translate() {
-  const d = await fetch_dictionary();
+async function doTranslate() {
+  const d = await fetchDictionary();
   const lines = document.getElementById('input').value.split('\n');
   const res = [];  // type: String[]
   let num = parseInt(lines[0], 10);
-  let sub_num = 1;
+  let subNum = 1;
   if (Number.isNaN(num)) throw TypeError('The first line should be a number.');
 
   for (let i = 1; i < lines.length; i++) {
@@ -73,14 +73,14 @@ async function do_translate() {
       const [name, mode] = ln.split(/\s+/);
       if (mode === undefined) throw TypeError(`Input line ${i + 1} doesn't have a "mode".`);
       res.push(
-        `- ${num}-${sub_num++}: `
-        + `${find_match(name, d)} `
+        `- ${num}-${subNum++}: `
+        + `${findMatch(name, d)} `
         + `(${mode[0].toUpperCase() + mode.substring(1)})`
       );
     } else {  // next paragraph
       res.push('');
       num++;
-      sub_num = 1;
+      subNum = 1;
     }
   }
   document.getElementById('output').value = res.join('\n');
@@ -88,7 +88,7 @@ async function do_translate() {
 
 async function run() {
   try {
-    await do_translate();
+    await doTranslate();
   } catch (e) {
     alert(e);  // notify user errors
     console.error(e);
@@ -98,7 +98,7 @@ async function run() {
 async function autorun() {
   if (document.getElementById('autorun').checked) {
     try {
-      await do_translate();
+      await doTranslate();
     } catch (e) {
       document.getElementById('output').value = e;
     }

@@ -11,19 +11,18 @@ let KART_DICTIONARY;
 async function fetchDictionary() {
   if (typeof KART_DICTIONARY === 'object') {  // already fetched
     return KART_DICTIONARY;
-  } else {
-    KART_DICTIONARY = {};
-    const url = 'https://raw.githubusercontent.com/davidhcefx/KartRider-Rush-Story-Mode-Details/main/Tracklist_zh.md';
-    const r = await fetch(url);
-    (await r.text()).split('\n')
-      .map((ln) => ln.split('|'))
-      .filter((row) => row.length >= 4 && !row[2].includes('--') && !row[2].includes('[R]'))
-      .forEach((row) => {
-        KART_DICTIONARY[row[1].trim()] = row[2].trim();
-      });
-
-    return KART_DICTIONARY;
   }
+  KART_DICTIONARY = {};
+  const url = 'https://raw.githubusercontent.com/davidhcefx/Tracks-in-KartRider-Rush-Story-Mode/main/Tracklist.md';
+  const r = await fetch(url);
+  (await r.text()).split('\n')
+    .map((ln) => ln.split('|'))
+    .filter((row) => row.length >= 4 && !row[1].includes('--') && !row[1].includes('[R]'))
+    .forEach((row) => {
+      KART_DICTIONARY[row[2].trim()] = row[1].trim();
+    });
+
+  return KART_DICTIONARY;
 }
 
 function hasSubsequence(str, sub) {
@@ -45,7 +44,6 @@ function hasSubsequence(str, sub) {
  * @returns {String}
  */
 function findMatch(name, d) {
-  const keys = Object.keys(d);
   const describe = (match) => {
     if (match.length > 1) return `MULTI MATCH (${match})`;
     // replace question mark with the Chinese name
@@ -53,8 +51,9 @@ function findMatch(name, d) {
     return 'NOT FOUND!';
   };
   // substring match
-  const s = describe(keys.filter((k) => k.includes(name)));
-  if (s !== 'NOT FOUND!') return s;
+  const keys = Object.keys(d);
+  const res = describe(keys.filter((k) => k.includes(name)));
+  if (res !== 'NOT FOUND!') return res;
   // fuzzy match
   return describe(keys.filter((k) => hasSubsequence(k, name)));
 }
@@ -75,7 +74,7 @@ async function doTranslate() {
       res.push(
         `- ${num}-${subNum++}: `
         + `${findMatch(name, d)} `
-        + `(${mode[0].toUpperCase() + mode.substring(1)})`
+        + `(${mode[0].toUpperCase() + mode.substring(1)})`  // eslint-disable-line comma-dangle
       );
     } else {  // next paragraph
       res.push('');
@@ -86,7 +85,7 @@ async function doTranslate() {
   document.getElementById('output').value = res.join('\n');
 }
 
-async function run() {
+async function run() {  // eslint-disable-line no-unused-vars
   try {
     await doTranslate();
   } catch (e) {
@@ -95,7 +94,7 @@ async function run() {
   }
 }
 
-async function autorun() {
+async function autorun() {  // eslint-disable-line no-unused-vars
   if (document.getElementById('autorun').checked) {
     try {
       await doTranslate();

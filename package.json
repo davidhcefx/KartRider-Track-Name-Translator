@@ -11,7 +11,7 @@
   "author": "davidhcefx",
   "license": "MIT",
   "dependencies": {
-    "express": "^5.2.0"
+    "express": "^5.2.1"
   },
   "devDependencies": {
     "eslint": "^8.10.0",
